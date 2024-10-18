@@ -4,8 +4,9 @@ metadata:
   name: wp-pvc
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
       storage: 1Gi
+  storageClassName: ibmc-file-gold
 

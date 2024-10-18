@@ -55,6 +55,7 @@ metadata:
 
 - MySQL 用 PVC : `mysql-pvc.yaml`
   - `$ vi mysql-pvc.yaml` で以下の内容のファイルを作成する
+  - １つの MySQL Pod からアクセスできればよいので、accessModes は `ReadWriteOnce` にする
   - 最下行のストレージサイズは適当に指定する
 
 ```(mysql-pvc.yaml)
@@ -72,7 +73,9 @@ spec:
 
 - アップロードファイル用 PVC : `wp-pvc.yaml`
   - `$ vi wp-pvc.yaml` で以下の内容のファイルを作成する
-  - 最下行のストレージサイズは適当に指定する
+  - 複数の WP Pod からのアクセスを想定して、accessModes は `ReadWriteMany` にする
+  - 下から２行目のストレージサイズは適当に指定する
+  - 最下行のストレージクラスは `ReadWriteMany` に対応したもの（ファイルストレージ？）を指定する
 
 ```(wp-pvc.yaml)
 apiVersion: v1
@@ -81,10 +84,11 @@ metadata:
   name: wp-pvc
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
       storage: 1Gi
+  storageClassName: ibmc-file-gold
 ```
 
 - MySQL 用 Deployment : `mysql-deployment.yaml`
@@ -237,6 +241,9 @@ spec:
 - ポートフォワードで動作確認
   - `$ oc port-forward service/wordpress-service 8080:80`
   - `http://localhost:8080/`
+
+- wordpress Pod をスケールする
+  - wordpress Deployment から Pod 数を２以上に変更しても正しく動くことを確認する
 
 
 ## クリーンアップ
